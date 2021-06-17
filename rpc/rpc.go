@@ -18,7 +18,7 @@ type RPCFunc struct {
 func RegisterRPCFunc(name string, queue string, fn func(args map[string]interface{})) {
 	RPCFUNCS[name] = RPCFunc{
 		Name:  name,
-		Queue: queue,
+		Queue: getQueue(queue),
 		Fn:    fn,
 	}
 }
@@ -40,8 +40,12 @@ func InvokeRPC(name string, args map[string]interface{}) error {
 
 func WorkOnRPC(queues []string) {
 	for _, queue := range queues {
-		gomq.ConsumeJSON(queue, handleRPCFuncJson)
+		gomq.ConsumeJSON(getQueue(queue), handleRPCFuncJson)
 	}
+}
+
+func getQueue(queue string) string {
+	return fmt.Sprintf("rpc-%s", queue)
 }
 
 func findRPCFunc(name string) (*RPCFunc, error) {
