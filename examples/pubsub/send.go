@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/shaofeinus/gomq"
-	"github.com/shaofeinus/gomq/examples/pubsub/subs"
+	"github.com/shaofeinus/gomq/examples/pubsub/funcs"
+	"github.com/shaofeinus/gomq/pubsub"
 	"log"
 	"os"
 )
@@ -14,8 +15,8 @@ func main() {
 	// AMQP URL is taking from the env variable GOMQ_AMQP_URL. See config.go
 	gomq.SetupMQ("")
 	defer gomq.TeardownMQ()
-	subs.RegisterPubSub()
-	err := gomq.Publish(event, map[string]interface{}{"message": message})
+	funcs.Setup()
+	err := pubsub.Publish(event, map[string]interface{}{"message": message})
 	if err != nil {
 		log.Fatalf("Error: %s", err.Error())
 	}

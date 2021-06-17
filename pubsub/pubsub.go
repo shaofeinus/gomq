@@ -1,8 +1,9 @@
-package gomq
+package pubsub
 
 import (
 	"errors"
 	"fmt"
+	"github.com/shaofeinus/gomq"
 )
 
 var EVENTS = make(map[string]Event)
@@ -36,7 +37,7 @@ func Publish(event string, args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	return SendJSONToExchange(ev.Exchange, map[string]interface{}{
+	return gomq.SendJSONToExchange(ev.Exchange, map[string]interface{}{
 		"name": ev.Name,
 		"args": args,
 	})
@@ -56,11 +57,11 @@ func WorkOnSubscriber(event string, subscriber string) error {
 	if err != nil {
 		return err
 	}
-	err = BindQueue(sub.Queue, ev.Exchange)
+	err = gomq.BindQueue(sub.Queue, ev.Exchange)
 	if err != nil {
 		return err
 	}
-	ConsumeJSON(sub.Queue, makeHandleEventJson(sub.Fn))
+	gomq.ConsumeJSON(sub.Queue, makeHandleEventJson(sub.Fn))
 	return nil
 }
 

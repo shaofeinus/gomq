@@ -1,8 +1,9 @@
-package gomq
+package rpc
 
 import (
 	"errors"
 	"fmt"
+	"github.com/shaofeinus/gomq"
 	"log"
 )
 
@@ -27,7 +28,7 @@ func InvokeRPC(name string, args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = SendJSONToQueue(rpcFunc.Queue, map[string]interface{}{
+	err = gomq.SendJSONToQueue(rpcFunc.Queue, map[string]interface{}{
 		"name": rpcFunc.Name,
 		"args": args,
 	})
@@ -39,7 +40,7 @@ func InvokeRPC(name string, args map[string]interface{}) error {
 
 func WorkOnRPC(queues []string) {
 	for _, queue := range queues {
-		ConsumeJSON(queue, handleRPCFuncJson)
+		gomq.ConsumeJSON(queue, handleRPCFuncJson)
 	}
 }
 

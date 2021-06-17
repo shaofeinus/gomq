@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/shaofeinus/gomq"
-	"github.com/shaofeinus/gomq/examples/rpc/rpcfuncs"
+	"github.com/shaofeinus/gomq/examples/rpc/funcs"
+	"github.com/shaofeinus/gomq/rpc"
 	"log"
 	"os"
 )
@@ -16,7 +17,7 @@ func main() {
 	defer gomq.TeardownMQ()
 	forever := make(chan bool)
 	log.Printf(fmt.Sprintf(" [*] Waiting for messages on queues %v. To exit press CTRL+C", queues))
-	rpcfuncs.RegisterRPC()
-	gomq.WorkOnRPC(queues)
+	funcs.Setup()
+	rpc.WorkOnRPC(queues)
 	<-forever
 }

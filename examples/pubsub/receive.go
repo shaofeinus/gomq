@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/shaofeinus/gomq"
-	"github.com/shaofeinus/gomq/examples/pubsub/subs"
+	"github.com/shaofeinus/gomq/examples/pubsub/funcs"
+	"github.com/shaofeinus/gomq/pubsub"
 	"log"
 	"os"
 )
@@ -17,9 +18,9 @@ func main() {
 
 	forever := make(chan bool)
 	log.Printf(fmt.Sprintf(" [*] Waiting for events for subs %v. To exit press CTRL+C", subscribers))
-	subs.RegisterPubSub()
+	funcs.Setup()
 	for _, subscriber := range subscribers {
-		err := gomq.WorkOnSubscriber("GREET", subscriber)
+		err := pubsub.WorkOnSubscriber("GREET", subscriber)
 		if err != nil {
 			log.Fatalf(fmt.Sprintf("Failed to work on subscriber \"%s\": %s", subscriber, err.Error()))
 		}
