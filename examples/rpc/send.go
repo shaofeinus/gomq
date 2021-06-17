@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/shaofeinus/gomq"
-	"github.com/shaofeinus/gomq/example/rpc/rpcfuncs"
+	"github.com/shaofeinus/gomq/examples/rpc/rpcfuncs"
 	"log"
 	"os"
 )

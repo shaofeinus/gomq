@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/shaofeinus/gomq"
-	"github.com/shaofeinus/gomq/example/pubsub/subs"
+	"github.com/shaofeinus/gomq/examples/pubsub/subs"
 	"log"
 	"os"
 )
