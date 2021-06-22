@@ -4,18 +4,22 @@ import (
 	"errors"
 	"fmt"
 	"github.com/shaofeinus/gomq"
+	"github.com/shaofeinus/gomq/middleware"
 	"log"
+	"time"
 )
 
 var RPCFUNCS = make(map[string]RPCFunc)
 
+type Fn func(args map[string]interface{}) (interface{}, error)
+
 type RPCFunc struct {
 	Name  string
 	Queue string
-	Fn    func(args map[string]interface{})
+	Fn    Fn
 }
 
-func RegisterRPCFunc(name string, queue string, fn func(args map[string]interface{})) {
+func RegisterRPCFunc(name string, queue string, fn Fn) {
 	RPCFUNCS[name] = RPCFunc{
 		Name:  name,
 		Queue: getQueue(queue),
@@ -28,9 +32,18 @@ func InvokeRPC(name string, args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
+	start := time.Now()
 	err = gomq.SendJSONToQueue(rpcFunc.Queue, map[string]interface{}{
 		"name": rpcFunc.Name,
 		"args": args,
+	})
+	middleware.ApplySenderMiddlewares(middleware.Message{
+		Protocol: "rpc",
+		Name:     name,
+		Args:     args,
+		Ret:      nil,
+		Error:    err,
+		Duration: time.Now().Sub(start),
 	})
 	if err != nil {
 		return err
@@ -58,10 +71,19 @@ func findRPCFunc(name string) (*RPCFunc, error) {
 
 func handleRPCFuncJson(rpcJson map[string]interface{}) {
 	rpcFunc, err := findRPCFunc(rpcJson["name"].(string))
-	args := rpcJson["args"].(map[string]interface{})
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
-	rpcFunc.Fn(args)
+	start := time.Now()
+	args := rpcJson["args"].(map[string]interface{})
+	ret, err := rpcFunc.Fn(args)
+	middleware.ApplyReceiverMiddlewares(middleware.Message{
+		Protocol: "rpc",
+		Name:     rpcFunc.Name,
+		Args:     args,
+		Ret:      ret,
+		Error:    err,
+		Duration: time.Now().Sub(start),
+	})
 }
